@@ -1011,7 +1011,7 @@ app.use("/uploads", express.static("uploads"));
 
 // ✅ Connect to MongoDB
 mongoose
-  .connect(process.env.MONGO_URI || "mongodb://127.0.0.1:27017/userDB", {
+  .connect(process.env.MONGO_URI || "mongodb+srv://durga210804:Jahnavi333@cluster0.8c8bq.mongodb.net/userDB", {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
