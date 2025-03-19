@@ -280,7 +280,7 @@ const Register = () => {
     }
 
     try {
-      const response = await fetch("https://versel-recler.onrender.com/register", {
+      const response = await fetch("https://versel-recler-2.onrender.com/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
