@@ -7,20 +7,22 @@ const path = require("path");
 const bodyParser = require("body-parser");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const helmet = require('helmet'); // For security headers
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const JWT_SECRET = "your_jwt_secret";
+const JWT_SECRET = process.env.JWT_SECRET; // Use env variable
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 app.use(bodyParser.json());
 app.use("/uploads", express.static("uploads"));
+app.use(helmet()); // Use Helmet to set security headers
 
-// ✅ Connect to MongoDB
+// Connect to MongoDB
 mongoose
-  .connect(process.env.MONGO_URI || "mongodb+srv://durga210804:Jahnavi333@cluster0.8c8bq.mongodb.net/userDB", {
+  .connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
@@ -52,30 +54,24 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// ✅ Register Route
+// Register Route
 app.post("/register", async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    // Check if the user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: "User already exists!" });
     }
 
-    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Create a new user
     const newUser = new User({
       name,
       email,
       password: hashedPassword,
     });
 
-    // Save the user to the database
     await newUser.save();
-
     res.status(201).json({ message: "User registered successfully!" });
   } catch (err) {
     console.error("Error during registration:", err);
@@ -83,30 +79,25 @@ app.post("/register", async (req, res) => {
   }
 });
 
-// ✅ Signin Route
+// Signin Route
 app.post("/signin", async (req, res) => {
   try {
-    const { name, password } = req.body;
+    const { email, password } = req.body;
 
-    // Check if user exists
-    const user = await User.findOne({ name });
+    const user = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({ message: "User not found!" });
     }
 
-    // Compare provided password with stored hashed password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid password!" });
     }
 
-    // Create JWT token
     const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: "1h" });
-
-    // Send token in response
     res.status(200).json({
       message: "Signin successful!",
-      token, // Send the token to frontend (you can store it in localStorage or cookies)
+      token,
     });
   } catch (err) {
     console.error("Signin error:", err);
@@ -114,29 +105,29 @@ app.post("/signin", async (req, res) => {
   }
 });
 
-// ✅ Upload Route
+// Upload Route
 app.post("/datasets/:id/upload", upload.single("file"), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ message: "No file uploaded" });
     }
 
-    const fileDownloadUrl = `/uploads/${req.file.filename}`; // Save relative path
+    const fileDownloadUrl = `/uploads/${req.file.filename}`;
 
     const newFile = new DatasetFile({
       datasetId: req.params.id,
       fileName: req.file.filename,
-      filePath: fileDownloadUrl, // Stores "/uploads/filename"
+      filePath: fileDownloadUrl,
     });
 
     await newFile.save();
-    res.status(200).json({ message: "✅ File uploaded successfully!", file: newFile });
+    res.status(200).json({ message: "File uploaded successfully!", file: newFile });
   } catch (error) {
     res.status(500).json({ message: "Server error. Failed to upload file.", error: error.message });
   }
 });
 
-// 📌 Check if Dataset Exists
+// Get Dataset
 app.get("/datasets/:id", async (req, res) => {
   try {
     const files = await DatasetFile.find({ datasetId: req.params.id });
@@ -152,4 +143,4 @@ app.get("/datasets/:id", async (req, res) => {
 });
 
 // Start Server
-app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
+app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
