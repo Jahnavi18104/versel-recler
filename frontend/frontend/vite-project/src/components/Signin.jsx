@@ -55,22 +55,8 @@ const Signin = () => {
         <img src={Logo} alt="Logo" className="logo" />
         <h1>Welcome!</h1>
         <form onSubmit={handleSubmit}>
-          <input
-            type="text"
-            name="name"
-            placeholder="Enter name"
-            value={formData.name}
-            onChange={handleChange}
-            required
-          />
-          <input
-            type="password"
-            name="password"
-            placeholder="Enter your password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
+          <input type="text" name="name" placeholder="Enter name" value={formData.name} onChange={handleChange} required />
+          <input type="password" name="password" placeholder="Enter your password" value={formData.password} onChange={handleChange} required />
           <button type="submit">Submit</button>
         </form>
         <p className={isError ? "error-message" : "success-message"}>{message}</p>
