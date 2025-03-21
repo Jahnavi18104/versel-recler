@@ -39,11 +39,18 @@ const FileList = () => {
             files.map((file) => (
               <li key={file._id}>
                 {/* Preview and download links */}
-                <a href={file.filePath} target="_blank" rel="noopener noreferrer">
+                <a 
+                  href={`https://versel-recler-8.onrender.com${file.filePath}`} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                >
                   {file.fileName}
                 </a>
                 &nbsp;|&nbsp;
-                <a href={file.filePath} download>
+                <a 
+                  href={`https://versel-recler-8.onrender.com${file.filePath}`} 
+                  download
+                >
                   Download
                 </a>
               </li>
